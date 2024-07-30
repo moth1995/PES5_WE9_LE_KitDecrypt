@@ -3,9 +3,9 @@ using System.IO;
 
 namespace PES5_WE9_LE_KitDecrypt
 {
-    internal class Program
+    public class KitDecrypt
     {
-        static uint[] keys0 = new uint[]
+        private static uint[] keys0 = new uint[]
 {
                 0xb506bd9c,
                 0xec556da8,
@@ -25,7 +25,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 0x56559e77,
                 0xc3ae76ea,
 };
-        static uint[] keys1 = new uint[]
+        private static uint[] keys1 = new uint[]
         {
                 0x1f20659a,
                 0x3da89392,
@@ -284,7 +284,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 0x724a5e63,
                 0x22b9c3af,
         };
-        static uint[] keys2 = new uint[]
+        private static uint[] keys2 = new uint[]
         {
                 0xb7b37822,
                 0xf9fad75d,
@@ -543,7 +543,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 0xf7511df1,
                 0xa1802a56,
         };
-        static uint[] keys3 = new uint[]
+        private static uint[] keys3 = new uint[]
         {
                 0xb8efe490,
                 0xc91c16a0,
@@ -802,7 +802,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 0x350f4224,
                 0xc811ef1a,
         };
-        static uint[] keys4 = new uint[]
+        private static uint[] keys4 = new uint[]
         {
                 0x5c03ac94,
                 0xcf32d224,
@@ -1061,20 +1061,20 @@ namespace PES5_WE9_LE_KitDecrypt
                 0x1f90398b,
                 0x9731de09,
         };
-        static uint HEADER_SIZE = 0x20;
+        private static uint HEADER_SIZE = 0x20;
 
-        static uint ReadUint32(byte[] buffer, uint startIndex)
+        private static uint ReadUint32(byte[] buffer, uint startIndex)
         {
             return (uint)(buffer[startIndex] | (buffer[startIndex + 1] << 8) | (buffer[startIndex + 2] << 16) |(buffer[startIndex + 3] << 24));
         }
-        public static void WriteUInt32(byte[] buffer, uint startIndex, uint newValue)
+        private static void WriteUInt32(byte[] buffer, uint startIndex, uint newValue)
         {
             buffer[startIndex] = (byte)newValue;
             buffer[startIndex + 1] = (byte)(newValue >> 8);
             buffer[startIndex + 2] = (byte)(newValue >> 16);
             buffer[startIndex + 3] = (byte)(newValue >> 24);
         }
-        static void DecryptKit4(byte[] buffer)
+        private static void DecryptKit4(byte[] buffer)
         {
             if (buffer == null || buffer.Length == 0) return;
             uint size = ReadUint32(buffer, 4);
@@ -1102,7 +1102,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 WriteUInt32(buffer, i + 4, newB);
             }
         }
-        static void EncryptKit4(byte[] buffer)
+        private static void EncryptKit4(byte[] buffer)
         {
             if (buffer == null || buffer.Length == 0) return;
             uint size = ReadUint32(buffer, 4);
@@ -1131,7 +1131,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 WriteUInt32(buffer, i + 4, b);
             }
         }
-        static void DecryptKit5(byte[] buffer)
+        private static void DecryptKit5(byte[] buffer)
         {
             if (buffer == null || buffer.Length == 0) return;
 
@@ -1157,7 +1157,7 @@ namespace PES5_WE9_LE_KitDecrypt
             WriteUInt32(buffer, 0x2c, newC);
             WriteUInt32(buffer, 0x3c, newD);
         }
-        static void DecryptKit6(byte[] buffer)
+        private static void DecryptKit6(byte[] buffer)
         {
             if (buffer == null || buffer.Length == 0) return;
 
@@ -1183,10 +1183,141 @@ namespace PES5_WE9_LE_KitDecrypt
             WriteUInt32(buffer, 0x2c, newC);
             WriteUInt32(buffer, 0x34, newD);
         }
+
+        private static void ShowHelp()
+        {
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  -i <input file>   Input file (required).");
+            Console.WriteLine("  -o <output file>  Output file (required).");
+            Console.WriteLine("  -v <version>      Processing version (required). Possible values: 4, 5, 6.");
+            Console.WriteLine("  -e                Encrypt (only needed for version 4).");
+            Console.WriteLine("  -d                Decrypt (only needed for version 4).");
+            Console.WriteLine();
+            Console.WriteLine("Examples:");
+            Console.WriteLine("  To encrypt with version 4:");
+            Console.WriteLine("    KitDecrypt.exe -i uni000ga.bin -o uni000ga_new.bin -v 4 -e");
+            Console.WriteLine("  To decrypt with version 4:");
+            Console.WriteLine("    KitDecrypt.exe -i uni000ga.bin -o uni000ga_new.bin -v 4 -d");
+            Console.WriteLine("  To process with version 5:");
+            Console.WriteLine("    KitDecrypt.exe -i uni000ga.bin -o uni000ga_new.bin -v 5");
+            Console.WriteLine("  To process with version 6:");
+            Console.WriteLine("    KitDecrypt.exe -i uni000ga.bin -o uni000ga_new.bin -v 6");
+        }
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                ShowHelp();
+                return;
+            }
 
-            Console.ReadLine();
+            string inputFile = null;
+            string outputFile = null;
+            int version = 0;
+            bool encrypt = false;
+            bool decrypt = false;
+
+            // Process the arguments
+            for (int i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "-i":
+                        if (i + 1 < args.Length)
+                        {
+                            inputFile = args[++i];
+                        }
+                        else
+                        {
+                            Console.WriteLine("An input file is required after -i.");
+                            ShowHelp();
+                            return;
+                        }
+                        break;
+                    case "-o":
+                        if (i + 1 < args.Length)
+                        {
+                            outputFile = args[++i];
+                        }
+                        else
+                        {
+                            Console.WriteLine("An output file is required after -o.");
+                            ShowHelp();
+                            return;
+                        }
+                        break;
+                    case "-v":
+                        if (i + 1 < args.Length)
+                        {
+                            if (!int.TryParse(args[++i], out version) || (version != 4 && version != 5 && version != 6))
+                            {
+                                Console.WriteLine("Version must be 4, 5, or 6.");
+                                ShowHelp();
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("A version value is required after -v.");
+                            ShowHelp();
+                            return;
+                        }
+                        break;
+                    case "-e":
+                        encrypt = true;
+                        break;
+                    case "-d":
+                        decrypt = true;
+                        break;
+                    default:
+                        Console.WriteLine($"Unrecognized option: {args[i]}");
+                        ShowHelp();
+                        return;
+                }
+            }
+
+            if (version != 4 || version != 5 || version != 6) 
+            {
+                Console.WriteLine("Unsupported version.");
+                ShowHelp();
+                return;
+            }
+
+            byte[] buffer = File.ReadAllBytes(inputFile);
+
+            if (version == 4)
+            {
+                if (encrypt && decrypt)
+                {
+                    Console.WriteLine("You cannot use both encrypt and decrypt options with version 4.");
+                    ShowHelp();
+                    return;
+                }
+                if (encrypt)
+                {
+                    EncryptKit4(buffer);
+                }
+                else if (decrypt)
+                {
+                    DecryptKit4(buffer);
+                }
+                else
+                {
+                    Console.WriteLine("You must specify -e or -d for version 4.");
+                    ShowHelp();
+                    return;
+                }
+            }
+            else if (version == 5)
+            {
+                DecryptKit5(buffer);
+            }
+            else if (version == 6)
+            {
+                DecryptKit6(buffer);
+            }
+
+            File.WriteAllBytes(outputFile, buffer);
 
         }
     }
