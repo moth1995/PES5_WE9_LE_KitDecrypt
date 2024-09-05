@@ -1276,7 +1276,7 @@ namespace PES5_WE9_LE_KitDecrypt
                 }
             }
 
-            if (version != 4 || version != 5 || version != 6) 
+            if (version != 4 && version != 5 && version != 6) 
             {
                 Console.WriteLine("Unsupported version.");
                 ShowHelp();
