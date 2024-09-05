@@ -1174,8 +1174,8 @@ namespace PES5_WE9_LE_KitDecrypt
             uint d = ReadUint32(buffer, 0x34);
 
             uint newA = key4 + key3 & 0x2dd795acU ^ a;
-            uint newB = key2 & 0x5d54fc78U + key1 ^ b;
-            uint newC = key4 - (key2 & 0xf7b5b641) ^ c;
+            uint newB = key4 - key2 & 0x5d54fc78U ^ b;
+            uint newC = (key2 & 0xf7b5b641) + key1 ^ c;
             uint newD = key1 - (key3 & 0x78d50165U) ^ d;
 
             WriteUInt32(buffer, 0x20, newA);
